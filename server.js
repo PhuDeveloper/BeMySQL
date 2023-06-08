@@ -1,36 +1,27 @@
 require("dotenv").config();
+const bodyParser = require("body-parser");
 const express = require("express");
-const mysql = require("mysql2");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const morgan = require("morgan");
 const app = express();
+const userRouter = require("./routers/user");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+app.use(bodyParser.json()); // Xử lý dữ liệu JSON
+app.use(bodyParser.urlencoded({ extended: false })); // Xử lý dữ liệu từ form
+app.use(cors());
+app.use(morgan("common"));
 
-const port = process.env.PORT ?? 3000;
+const port = 3000;
+const uri =
+  "mongodb+srv://phumagic2011:hr0TNzao5OdWEE5u@cluster0.shztoyw.mongodb.net/?retryWrites=true&w=majority";
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+mongoose
+  .connect(uri)
+  .then(() => console.log("connected"))
+  .catch((err) => console.log(err));
 
-const con = mysql.createConnection({
-  host: process.env.HOST_NAME ?? "localhost",
-  user: "root2",
-  password: "123456",
-  database: "test",
-});
-
-con.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected!!!");
-});
-
-app.get("/data", function (req, res) {
-  const sql = "SELECT * FROM user";
-
-  con.query(sql, function (err, results) {
-    if (err) throw err;
-    res.send(results.id);
-    console.log("resull", results[0].id);
-  });
-});
-
+app.use("/user", userRouter);
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Example app listening on port 3000`);
 });
